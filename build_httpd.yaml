@@ -1,0 +1,36 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: "mod-security-example"
+objects:
+  - kind: ImageStream
+    apiVersion: v1
+    metadata:
+      name: httpd-mod-security
+      labels:
+        application: httpd-mod-security
+    spec:
+      dockerImageRepository: ''
+      tags:
+      - name: latest
+  - kind: "BuildConfig"
+    apiVersion: "v1"
+    metadata:
+      name: "httpd-mod-security-build" 
+    spec:
+      triggers: 
+        - type: "ImageChange"
+      source: 
+        type: "Git"
+        contextDir: "2.4"
+        git:
+          uri: "https://github.com/jsight/httpd-container.git"
+          ref: "mod_security"
+      strategy: 
+        type: "Source"
+        dockerStrategy:
+          dockerfilePath: Dockerfile.rhel7
+      output: 
+        to:
+          kind: "ImageStreamTag"
+          name: "httpd-mod-security:latest"
