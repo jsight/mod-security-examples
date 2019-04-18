@@ -80,15 +80,22 @@ objects:
             env:
               - name: PROXY_PASS_LINE1
                 value: ProxyPass "http://helloworld:8080/"
+              - name: SSL_CLIENT_CERT_REQUIRED
+                value: true
             ports:
             - containerPort: 8443
               protocol: TCP
             volumeMounts:
               - mountPath: /etc/pki/httpd/
                 name: mod-security-waf-certs
+              - mountPath: /etc/pki/rhitcerts/
+                name: rhitcert
               - mountPath: /var/log/httpd
                 name: mod-security-waf-logs
           volumes:
+            - name: rhitcert
+              secret:
+                secretName: rhitcert
             - name: mod-security-waf-certs
               secret:
                 secretName: mod-security-waf-tls
