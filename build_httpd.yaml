@@ -1,18 +1,12 @@
 kind: Template
 apiVersion: "v1"
 metadata:
-  name: "mod-security-example"
+  name: "mod-security-examples"
 objects:
   - kind: ImageStream
     apiVersion: "v1"
     metadata:
       name: httpd-mod-security
-      labels:
-        app: httpd-mod-security-examples
-  - kind: ImageStream
-    apiVersion: "v1"
-    metadata:
-      name: httpd-mod-security-examples
       labels:
         app: httpd-mod-security-examples
   - kind: "BuildConfig"
@@ -38,111 +32,3 @@ objects:
         to:
           kind: "ImageStreamTag"
           name: "httpd-mod-security:latest"
-  - kind: "BuildConfig"
-    apiVersion: "v1"
-    metadata:
-      name: "httpd-mod-security-example-build" 
-      labels:
-        app: httpd-mod-security-examples
-    spec:
-      triggers: 
-        - type: "ImageChange"
-      source: 
-        type: "Git"
-        git:
-          uri: "https://github.com/jsight/mod-security-examples.git"
-          ref: "master"
-      strategy: 
-        type: "Source"
-        sourceStrategy:
-          from:
-            kind: "ImageStreamTag"
-            name: "httpd-mod-security:latest"
-      output: 
-        to:
-          kind: "ImageStreamTag"
-          name: "httpd-mod-security-examples:latest"
-  - kind: DeploymentConfig
-    apiVersion: "v1"
-    metadata:
-      name: mod-security-waf
-      labels:
-        app: httpd-mod-security-examples
-    spec:
-      template:
-        metadata:
-          labels:
-            name: mod-security-waf
-        spec:
-          containers:
-          - name: mod-security-waf
-            image: httpd-mod-security-examples:latest
-            env:
-              - name: PROXY_PASS_LINE1
-                value: ProxyPass "http://helloworld:8080/"
-              - name: SSL_CLIENT_CERT_REQUIRED
-                value: true
-            ports:
-            - containerPort: 8443
-              protocol: TCP
-            volumeMounts:
-              - mountPath: /etc/pki/httpd/
-                name: mod-security-waf-certs
-              - mountPath: /etc/pki/rhitcerts/
-                name: rhitcert
-              - mountPath: /var/log/httpd
-                name: mod-security-waf-logs
-          volumes:
-            - name: rhitcert
-              secret:
-                secretName: rhitcert
-            - name: mod-security-waf-certs
-              secret:
-                secretName: mod-security-waf-tls
-            - name: mod-security-waf-logs
-              emptyDir: {}
-      replicas: 1
-      selector:
-        name: mod-security-waf
-      triggers:
-      - type: ConfigChange
-      - type: ImageChange
-        imageChangeParams:
-          automatic: true
-          containerNames:
-          - mod-security-waf
-          from:
-            kind: ImageStreamTag
-            name: httpd-mod-security-examples:latest
-      strategy:
-        type: Rolling
-  - apiVersion: v1
-    kind: Service
-    metadata:
-      name: mod-security-waf
-      labels:
-        app: httpd-mod-security-examples
-      annotations:
-        service.alpha.openshift.io/serving-cert-secret-name: mod-security-waf-tls
-    spec:
-      selector:
-        name: mod-security-waf
-      ports:
-      - port: 443
-        protocol: TCP
-        targetPort: 8443
-  - apiVersion: route.openshift.io/v1
-    kind: Route
-    metadata:
-      labels:
-        app: httpd-mod-security-examples
-      name: helloworld-waf
-    spec:
-      tls:
-        insecureEdgeTerminationPolicy: Redirect
-        termination: reencrypt
-      to:
-        kind: Service
-        name: mod-security-waf
-        weight: 100
-      wildcardPolicy: None
