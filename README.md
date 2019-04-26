@@ -7,8 +7,8 @@ This repository contains an example build template for the [mod-security contain
 Templates:
 -- 
 
- - [build_httpd.yaml](https://gitlab.corp.redhat.com/it-eai/mod-security-examples/blob/master/build_httpd.yaml) - Builds the httpd base image with mod_security and the default OWASP rules baked in
- - [deployment.yaml](https://gitlab.corp.redhat.com/it-eai/mod-security-examples/blob/master/deployment.yaml) - A sample deployment, configured to point to "http://helloworld:8080/" as the backend service. Example deployment notes are below.
+ - [build_httpd.yaml](build_httpd.yaml) - Builds the httpd base image with mod_security and the default OWASP rules baked in
+ - [deployment.yaml](deployment.yaml) - A sample deployment, configured to point to "http://helloworld:8080/" as the backend service. Example deployment notes are below.
   
 Example Deployment Notes:
 -- 
